@@ -1,0 +1,26 @@
+# Establece la versión mínima de CMake requerida, en este caso la 3.0
+cmake_minimum_required(VERSION 3.0)
+
+# Nombra el proyecto como busca_minas
+project(busca_minas)
+
+# Establece el estándar de C++ a 14, para habilitar funciones de C++14
+set(CMAKE_CXX_STANDARD 14)
+
+# Define la lista de archivos .cpp que son las fuentes del proyecto
+set(SOURCE_FILES 
+    src/main.cpp
+    src/capa-negocio/Celda.cpp
+    src/capa-negocio/Juego.cpp  
+    src/capa-negocio/Tablero.cpp)
+
+# Crea un ejecutable llamado busca_minas usando esos archivos .cpp
+add_executable(busca_minas ${SOURCE_FILES})
+
+# Agrega las carpetas src/ y src/capa-negocio/ a la ruta de inclusión   
+target_include_directories(busca_minas PUBLIC 
+    src/
+    src/capa-negocio)
+
+# Vincula bibliotecas (en este caso no vincula ninguna)
+target_link_libraries(busca_minas)
