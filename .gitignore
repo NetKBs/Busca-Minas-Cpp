@@ -1,0 +1,5 @@
+src/Makefile
+src/output
+CMakeLists.txt
+*.dat
+build/

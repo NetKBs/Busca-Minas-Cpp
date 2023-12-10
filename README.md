@@ -1,1 +1,0 @@
-# Busca-Minas-Cpp
