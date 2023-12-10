@@ -40,7 +40,10 @@ public:
   void dibujarTablero();
   void chequearVictoria();
   void acabarPartida();
-  
+  void setNombre(std::string nombre);
+  void setFecha(std::string fecha);
+  void setNumJugadas(int jugadas);
+  void setResultado(Resultado resultado);
 };
 
 #endif

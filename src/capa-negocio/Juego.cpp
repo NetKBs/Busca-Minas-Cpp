@@ -9,7 +9,14 @@ Juego::Juego(std::string usuario) {
 
 void Juego::nuevaPartida() { tablero.generarTablero(); }
 
-int Juego::cargarPartida() { return loadState(ESTADO_TAB_FN, tablero.tablero); }
+int Juego::cargarPartida() {
+  int verificar = loadStateTablero(ESTADO_TAB_FN, tablero.tablero);
+  if (verificar != 1) {
+    loadStateJuego(DATOS_JUG_FN, *this);
+    return 0;
+  }
+  return 1;
+}
 
 std::string Juego::verificarCoordenadas(int fila, int columna) {
 
@@ -52,16 +59,52 @@ std::string Juego::obtenerFechaHora() {
 }
 
 std::string Juego::getResultadoEstado() {
-  if (resultado == DERROTA) return "DERROTA";
-  else if (resultado == VICTORIA) return "VICTORIA";
-  else return "INCONCLUSO";
-
+  if (resultado == DERROTA)
+    return "DERROTA";
+  else if (resultado == VICTORIA)
+    return "VICTORIA";
+  else
+    return "INCONCLUSO";
 }
 
-void Juego::chequearVictoria() {}
+void Juego::chequearVictoria() {
+  int minasMarcadas = 0;
+  int celdasReveladas = 0;
+
+  for (int fila = 0; fila < 8; fila++) {
+    for (int columna = 0; columna < 8; columna++) {
+
+      Celda celda = tablero.obtenerCelda(fila, columna);
+
+      if (celda.getMarcadaEstado() && celda.getMinaEstado()) {
+        minasMarcadas++;
+      }
+
+      if (celda.getReveladoEstado() && !celda.getMinaEstado()) {
+        celdasReveladas++;
+      }
+    }
+  }
+
+  if (minasMarcadas == 12) {
+    cout << "Felicidades, has ganado marcando todas las minas!" << endl;
+  } else if (celdasReveladas == (8 * 8 - 12)) {
+    cout << "Felicidades, has ganado revelando todas las celdas sin minas!" << endl;
+  }
+}
 
 void Juego::acabarPartida() {
-  guardarLog(LOG, usuario, fecha_hora, 8, 12, getResultadoEstado());
+  guardarLog(LOG, usuario, fecha_hora, 8, 12, numero_jugadas,
+             getResultadoEstado());
 }
 
-void Juego::guardarPartida() { saveState(ESTADO_TAB_FN, tablero.tablero); }
+void Juego::guardarPartida() {
+  saveState(ESTADO_TAB_FN, tablero.tablero);
+  guardarJuegoDatos(DATOS_JUG_FN, usuario, fecha_hora, 8, 12, numero_jugadas,
+                    getResultadoEstado());
+}
+
+void Juego::setNombre(std::string nombre) { usuario = nombre; }
+void Juego::setFecha(std::string fecha) { fecha_hora = fecha; }
+void Juego::setNumJugadas(int jugadas) { numero_jugadas = jugadas; }
+void Juego::setResultado(Resultado resultado) { this->resultado = resultado; }

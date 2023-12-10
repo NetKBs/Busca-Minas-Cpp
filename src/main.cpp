@@ -132,9 +132,11 @@ void GameLoop(Juego partida) {
 
     } else if (opcion == 2) {
       partida.guardarPartida();
+      partida.acabarPartida();
       break;
 
     } else if (opcion == 3) {
+      partida.acabarPartida();
       break;
     } else {
       cout << "Opcion invalida" << endl;
