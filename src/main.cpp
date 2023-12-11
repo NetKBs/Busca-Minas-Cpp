@@ -1,30 +1,77 @@
 #include "capa-negocio/Juego.hpp"
 #include "tools.hpp"
+#include <cstdio>
 #include <iostream>
+
+#ifdef _WIN32
+#define OS "Windows"
+#include "C:\msys64\mingw64\include\pdcurs36\wincon\curses.h"
+#elif __linux__
+#define OS "Linux"
+#include <ncurses.h>
+#endif
+
 using namespace std;
 
 void menuInicio();
 void GameLoop(Juego partida);
-void dibujarTablero();
+void pintarTablero(Juego partida);
+void limpiarPantalla();
+
+struct Coord {
+  int fila;
+  int columna;
+};
+Coord cursor;
 
 int main() {
+  initscr();
+  start_color();
+  init_pair(1, COLOR_RED, COLOR_BLACK);
+  init_pair(2, COLOR_GREEN, COLOR_BLACK);
+  init_pair(3, COLOR_CYAN, COLOR_BLACK); 
+  init_pair(4, COLOR_YELLOW, COLOR_BLACK);
+  init_pair(5, COLOR_WHITE, COLOR_BLACK);
+  init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
+
   menuInicio();
+  endwin();
   return 0;
 }
 
 void menuInicio() {
-
+   
   int opcion;
 
   do {
-    Juego partida("Pedro");
-    cout << "1. Nueva partida" << endl;
-    cout << "2. Cargar partida" << endl;
-    cout << "3. Historial" << endl;
-    cout << "4. Salir" << endl;
+    echo(); // Habilita el eco de teclas
+    nocbreak(); // Toma entradas en modo de línea
+    limpiarPantalla();
 
-    cout << "Elija una opcion: ";
-    cin >> opcion;
+    Juego partida("Pedro");
+    cursor.fila = 3;
+    cursor.columna = 3;
+
+    attron(COLOR_PAIR(1));
+    mvprintw(2, 20, "1. Nueva partida");
+    attroff(COLOR_PAIR(1));
+
+    attron(COLOR_PAIR(2));
+    mvprintw(3, 20, "2. Cargar partida");
+    attroff(COLOR_PAIR(2));
+
+    attron(COLOR_PAIR(1));
+    mvprintw(4, 20, "3. Historial");
+    attroff(COLOR_PAIR(1));
+
+    attron(COLOR_PAIR(2));
+    mvprintw(5, 20, "4. Salir");
+    attroff(COLOR_PAIR(2));
+
+    mvprintw(7, 20, ">>> ");
+    scanw("%d", &opcion);
+    fflush(stdin);
+    refresh();
 
     switch (opcion) {
     case 1:
@@ -41,7 +88,6 @@ void menuInicio() {
         cout << "Sin Partida Anterior" << endl;
         waitForInput();
       }
-
       break;
     }
     case 3:
@@ -58,89 +104,144 @@ void menuInicio() {
   } while (opcion != 4);
 }
 
-void dibujarTablero(Juego partida) {
-  //clearScreen();
-  partida.dibujarTablero();
+void limpiarPantalla() {
+  clear();
+  refresh();
+}
+
+void pintarTablero(Juego partida) {
+  Tablero tablero = partida.getTablero();
+
+  int screenWidth = getmaxx(stdscr);
+  int tableroWidth = 8 * 2 + 1;
+  int posInicialX = (screenWidth - tableroWidth) / 2;
+  int espaciadoSuperior = 3;
+
+  attron(COLOR_PAIR(2));
+  for (int fila = 0; fila < 8; fila++) {
+    mvprintw(fila + espaciadoSuperior, posInicialX,
+             "  "); // Agregamos espaciadoSuperior
+
+    for (int columna = 0; columna < 8; columna++) {
+
+      if (tablero.tablero[fila][columna].getReveladoEstado() && 
+        !tablero.tablero[fila][columna].getMinaEstado()) {
+        if (fila == cursor.fila && columna == cursor.columna) {
+          attron(COLOR_PAIR(1));
+          printw("%d  ", tablero.tablero[fila][columna].getNumMinasAdyacentes());
+          attron(COLOR_PAIR(2));
+        } else {
+        attron(COLOR_PAIR(5));
+        printw("%d  ", tablero.tablero[fila][columna].getNumMinasAdyacentes());
+        attron(COLOR_PAIR(2));
+
+        } 
+
+      } else if (tablero.tablero[fila][columna].getMarcadaEstado()) {
+
+        if (fila == cursor.fila && columna == cursor.columna) {
+          attron(COLOR_PAIR(1));
+          printw("?  ");
+          attron(COLOR_PAIR(2));
+        } else {
+        attron(COLOR_PAIR(4));
+          printw("?  ");
+        attron(COLOR_PAIR(2));
+
+        } 
+
+      } else if (tablero.tablero[fila][columna].getMinaEstado() && 
+        tablero.tablero[fila][columna].getReveladoEstado()){
+        if (fila == cursor.fila && columna == cursor.columna) {
+          attron(COLOR_PAIR(1));
+          printw("!  ");
+          attron(COLOR_PAIR(2));
+        } else {
+        attron(COLOR_PAIR(6));
+          printw("!  ");
+        attron(COLOR_PAIR(2));
+
+        } 
+
+      } else {
+        if (fila == cursor.fila && columna == cursor.columna) {
+          attron(COLOR_PAIR(1));
+          printw("*  ");
+          attron(COLOR_PAIR(2));
+        } else {
+          printw("*  ");
+        }
+      }
+    }
+    printw("\n");
+  }
+
+  attroff(COLOR_PAIR(2));
+
+  refresh();
 }
 
 void GameLoop(Juego partida) {
-
-  int opcion;
+  noecho(); // Disable key echoing
+  cbreak(); // Take inputs character by character
   bool perdiste = false;
 
   while (perdiste == false) {
-    dibujarTablero(partida);
+    limpiarPantalla();
+    pintarTablero(partida);
+    attron(COLOR_PAIR(3));
+    mvprintw(15, 10, "Movimiento:");
+    mvprintw(16, 10, "w - Arriba");
+    mvprintw(17, 10, "s - Abajo");
+    mvprintw(18, 10, "a - Izquierda");
+    mvprintw(19, 10, "d - Derecha");
 
-    cout << "\n\nQue hacer?" << endl;
-    cout << "1.Elegir Celda\t2.Guardar Y Salir" << "\t3.Salir" << endl;
-    cout << "\n>>>";
-    cin >> opcion;
+    mvprintw(15, 30, "Acciones:");
+    mvprintw(16, 30, "r - Revelar");
+    mvprintw(17, 30, "f - Marcar");
+    mvprintw(18, 30, "k - Salir");
+    attroff(COLOR_PAIR(3));
+    refresh();
 
-    if (opcion == 1) { // Elegir Celda
 
-      int fila = -1, columna = -1;
+    int key = getch();
 
-      cout << "inserte numero de fila: ";
-      cin >> fila;
-      cout << "inserte numero de columna: ";
-      cin >> columna;
+    if (key == 'w')
+      cursor.fila--; // Move up
+    else if (key == 's')
+      cursor.fila++; // Move down
+    else if (key == 'a')
+      cursor.columna--; // Move left
+    else if (key == 'd')
+      cursor.columna++; // Move right
 
-      string verificacionCoords = partida.verificarCoordenadas(fila, columna);
-      if (verificacionCoords != "") {
-        cout << "\n" << verificacionCoords;
-        waitForInput();
-        continue;
+    // Reajuste del cursor
+    if (cursor.fila > 7)
+      cursor.fila = 0;
+    if (cursor.fila < 0)
+      cursor.fila = 7;
+    if (cursor.columna > 7)
+      cursor.columna = 0;
+    if (cursor.columna < 0)
+      cursor.columna = 7;
+
+    // Acciones 
+    if (key == 'f') {
+      partida.marcarCelda(cursor.fila, cursor.columna);
+
+    }else if (key == 'r') {
+      int mina = partida.revelarCelda(cursor.fila, cursor.columna);
+      if (mina == 1) {
+        pintarTablero(partida);
+        refresh();
+        getchar();
+        limpiarPantalla();
+        perdiste = true;
       }
 
-      while (opcion != -1) {
-
-        printf("Accion a tomar en (%d,%d):\n", fila, columna);
-        cout << "1.Revelar Celda\t2.Marcar Celda\t3.Nada" << endl;
-        cout << ">>> ";
-        cin >> opcion;
-
-        switch (opcion) {
-
-        case 1: {
-          if (partida.revelarCelda(fila, columna) == 1) {
-            perdiste = true;
-            partida.acabarPartida();
-          } 
-          opcion = -1;
-          break;
-        }
-
-        case 2: {
-
-          partida.marcarCelda(fila, columna);
-          cout << "Marcado Hecho con exito" << endl;
-          waitForInput();
-          opcion = -1; // salir
-          break;
-        }
-
-        case 3: {
-          opcion = -1;
-          break;
-        }
-
-        default:
-          cout << "Opcion invalida" << endl;
-          break;
-        }
-      }
-
-    } else if (opcion == 2) {
-      partida.guardarPartida();
+    } else if (key == 'k') {
       partida.acabarPartida();
       break;
-
-    } else if (opcion == 3) {
-      partida.acabarPartida();
-      break;
-    } else {
-      cout << "Opcion invalida" << endl;
-      waitForInput();
     }
   }
 }

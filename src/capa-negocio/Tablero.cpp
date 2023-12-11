@@ -41,8 +41,10 @@ void Tablero::marcarCelda(int fila, int columna) {
 
 int Tablero::revelarCelda(int fila, int columna) {
 
-  if (tablero[fila][columna].getMinaEstado())
+  if (tablero[fila][columna].getMinaEstado()) {
+    tablero[fila][columna].setReveladoEstado(true);
     return 1;
+  }
 
   if (tablero[fila][columna].getNumMinasAdyacentes() > 0) {
     tablero[fila][columna].setReveladoEstado(true);
@@ -138,17 +140,6 @@ void Tablero::asignarAdyacenciaCeldas(pair<int, int> coords[]) {
 
 
 void Tablero::dibujarTablero() {
-
-  cout << "    ";
-  for (int i = 0; i < COLUMNAS; i++) {
-    cout << i << " ";
-  }
-  cout << endl << "    ";
-  for (int i = 0; i < COLUMNAS; i++) {
-    cout << "--"
-         << "";
-  }
-  cout << endl;
 
   for (int fila = 0; fila < FILAS; fila++) {
     cout << fila << " | ";

@@ -44,6 +44,8 @@ public:
   void setFecha(std::string fecha);
   void setNumJugadas(int jugadas);
   void setResultado(Resultado resultado);
+  Tablero getTablero();
+  std::string getNombre();
 };
 
 #endif

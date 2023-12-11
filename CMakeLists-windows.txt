@@ -22,11 +22,8 @@ target_include_directories(busca_minas PUBLIC
     src/
     src/capa-negocio)
 
-# Agregar la ruta de la biblioteca a CMAKE_INCLUDE_PATH:
-set(CMAKE_INCLUDE_PATH "${CMAKE_INCLUDE_PATH};C:/msys64/mingw64/include/pdcurs36")
-
 # Vincula bibliotecas 
-target_link_libraries(busca_minas 
-      pdcurses
-      -L"C:/msys64/mingw64/lib"
+ target_link_libraries(busca_minas 
+        pdcurses  
+        -L"C:/msys64/mingw64/include/pdcurs36/wincon"  
   )

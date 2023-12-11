@@ -23,4 +23,4 @@ target_include_directories(busca_minas PUBLIC
     src/capa-negocio)
 
 # Vincula bibliotecas (en este caso no vincula ninguna)
-target_link_libraries(busca_minas)
+target_link_libraries(busca_minas ncurses)

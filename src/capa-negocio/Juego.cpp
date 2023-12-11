@@ -108,3 +108,6 @@ void Juego::setNombre(std::string nombre) { usuario = nombre; }
 void Juego::setFecha(std::string fecha) { fecha_hora = fecha; }
 void Juego::setNumJugadas(int jugadas) { numero_jugadas = jugadas; }
 void Juego::setResultado(Resultado resultado) { this->resultado = resultado; }
+
+Tablero Juego::getTablero() {return tablero;}
+std::string Juego::getNombre() {return usuario;}
