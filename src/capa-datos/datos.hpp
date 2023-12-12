@@ -4,16 +4,31 @@
 #include <ios>
 #include <iostream>
 #include <ostream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
-string ruta = "src/capa-datos/";
+#ifndef DATOS_H
+#define DATOS_H
+
+struct Datos {
+    string nombre;
+    string fecha;
+    string hora;
+    string t_size;
+    string n_minas;
+    string n_jugadas;
+    string resultado;
+};
+
+
 
 inline void guardarJuegoDatos(string filename, string nombre, string fecha,
                               int t_size, int n_minas, int num_jugadas,
                               string resultado) {
 
-  ofstream fout(ruta + filename);
+  ofstream fout("src/capa-datos/" + filename);
   fout << nombre << " " << fecha << " " << t_size << " " << n_minas << " "
        << num_jugadas << " " << resultado << endl;
   fout.close();
@@ -23,14 +38,14 @@ inline void guardarLog(string filename, string nombre, string fecha, int t_size,
                        int n_minas, int num_jugadas, string resultado) {
 
   fstream fout;
-  fout.open(ruta + filename, ios::app); // Abrir en modo append en lugar de overwrite
+  fout.open("src/capa-datos/" + filename, ios::app); // Abrir en modo append en lugar de overwrite
   fout << nombre << " " << fecha << " " << t_size << " " << n_minas << " "
        << num_jugadas << " " << resultado << endl;
   fout.close();
 }
 
 inline void saveState(string filename, Celda tablero[8][8]) {
-  ofstream fout(ruta + filename);
+  ofstream fout("src/capa-datos/" + filename);
 
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
@@ -47,7 +62,7 @@ inline void saveState(string filename, Celda tablero[8][8]) {
 
 inline int loadStateTablero(string filename, Celda tablero[8][8]) {
 
-  ifstream fin(ruta + filename);
+  ifstream fin("src/capa-datos/" + filename);
 
   if (!fin.is_open()) {
     return 1;
@@ -82,7 +97,7 @@ inline int loadStateTablero(string filename, Celda tablero[8][8]) {
 }
 
 inline void loadStateJuego(string filename, Juego &partida) {
-  ifstream fin(ruta + filename);
+  ifstream fin("src/capa-datos/" + filename);
 
   string nombre, fecha, hora, resultado;
   int t_size, n_minas, num_jugadas;
@@ -110,3 +125,20 @@ inline void loadStateJuego(string filename, Juego &partida) {
 
   fin.close();
 }
+
+inline vector <Datos> cargarLog(string filename) {
+  ifstream fin("src/capa-datos/" + filename);
+  string linea;
+  vector<Datos> historial;
+
+    while (std::getline(fin, linea)) {
+        istringstream iss(linea);
+        Datos datos;
+        iss >> datos.nombre >> datos.fecha >> datos.hora >> datos.t_size >> datos.n_minas >> datos.n_jugadas >> datos.resultado;
+        historial.push_back(datos);
+    }
+
+  return historial;
+}
+
+#endif

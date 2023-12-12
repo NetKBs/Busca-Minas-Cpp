@@ -12,7 +12,8 @@ set(SOURCE_FILES
     src/main.cpp
     src/capa-negocio/Celda.cpp
     src/capa-negocio/Juego.cpp  
-    src/capa-negocio/Tablero.cpp)
+    src/capa-negocio/Tablero.cpp
+    src/capa-negocio/UI.cpp)
 
 # Crea un ejecutable llamado busca_minas usando esos archivos .cpp
 add_executable(busca_minas ${SOURCE_FILES})

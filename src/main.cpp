@@ -1,247 +1,140 @@
-#include "capa-negocio/Juego.hpp"
-#include "tools.hpp"
+#include "capa-negocio/UI.hpp"
 #include <cstdio>
-#include <iostream>
-
-#ifdef _WIN32
-#define OS "Windows"
-#include "C:\msys64\mingw64\include\pdcurs36\wincon\curses.h"
-#elif __linux__
-#define OS "Linux"
 #include <ncurses.h>
-#endif
 
 using namespace std;
 
 void menuInicio();
+int seleccionDeMenu(int opcion);
 void GameLoop(Juego partida);
-void pintarTablero(Juego partida);
-void limpiarPantalla();
 
-struct Coord {
-  int fila;
-  int columna;
-};
-Coord cursor;
+UI ui = UI();
 
 int main() {
-  initscr();
-  start_color();
-  init_pair(1, COLOR_RED, COLOR_BLACK);
-  init_pair(2, COLOR_GREEN, COLOR_BLACK);
-  init_pair(3, COLOR_CYAN, COLOR_BLACK); 
-  init_pair(4, COLOR_YELLOW, COLOR_BLACK);
-  init_pair(5, COLOR_WHITE, COLOR_BLACK);
-  init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
-
   menuInicio();
-  endwin();
+  ui.terminarUI();
   return 0;
 }
 
 void menuInicio() {
-   
-  int opcion;
+  const int ITEMS = 4;
+  string menuItems[ITEMS] = {"1 - Nueva Partida", "2 - Cargar Partida", "3 - Historial", "4 - Salir"};
+  int selectedOption = 0;
+  bool run = true;
 
   do {
-    echo(); // Habilita el eco de teclas
-    nocbreak(); // Toma entradas en modo de línea
-    limpiarPantalla();
+    ui.limpiarPantalla();
+    ui.imprimirEn(3, ui.getScreenWidth() / 2 - 10, "BUSCA MINAS - JUEGO" , YELLOW);
 
-    Juego partida("Pedro");
-    cursor.fila = 3;
-    cursor.columna = 3;
+    for (int i = 0; i < ITEMS; i++) {
+      if (i == selectedOption) {
+        ui.imprimirEn(i + 5, ui.getScreenWidth() / 2 - 15, menuItems[i].c_str(), CYAN);
+      } else {
+        ui.imprimirEn(i + 5, ui.getScreenWidth() / 2 - 15, menuItems[i].c_str(), WHITE);
+      }
+    }
 
-    attron(COLOR_PAIR(1));
-    mvprintw(2, 20, "1. Nueva partida");
-    attroff(COLOR_PAIR(1));
+    ui.imprimirEn(15, ui.getScreenWidth() / 2 - 20, "W - arriba | S - abajo | Enter - elegir" , CYAN);
+    int key = getch();
 
-    attron(COLOR_PAIR(2));
-    mvprintw(3, 20, "2. Cargar partida");
-    attroff(COLOR_PAIR(2));
+    if (key == 's') {
+      selectedOption++;
+      if (selectedOption >= ITEMS)
+        selectedOption = 0;
 
-    attron(COLOR_PAIR(1));
-    mvprintw(4, 20, "3. Historial");
-    attroff(COLOR_PAIR(1));
+    } else if (key == 'w') {
+      selectedOption--;
+      if (selectedOption < 0)
+        selectedOption = 3;
 
-    attron(COLOR_PAIR(2));
-    mvprintw(5, 20, "4. Salir");
-    attroff(COLOR_PAIR(2));
+    } else if (key == '\n') {
+      if (seleccionDeMenu(selectedOption + 1) != 0) {
+        run = false;
+      }
+    }
 
-    mvprintw(7, 20, ">>> ");
-    scanw("%d", &opcion);
-    fflush(stdin);
-    refresh();
+  } while (run == true);
+}
 
-    switch (opcion) {
-    case 1:
+int seleccionDeMenu(int opcion) {
+
+  if (opcion == 1 || opcion == 2) {
+    Juego partida = Juego("Nombre");
+
+    if (opcion == 1) {
       partida.nuevaPartida();
       GameLoop(partida);
 
-      break;
-    case 2: {
-      int verificacion = partida.cargarPartida();
+    } else {
 
-      if (verificacion != 1) {
+      if (partida.cargarPartida() != 1) {
         GameLoop(partida);
       } else {
-        cout << "Sin Partida Anterior" << endl;
-        waitForInput();
-      }
-      break;
-    }
-    case 3:
-      // Codigo para mostrar historial
-      break;
-    case 4:
-      // Salir del programa
-      break;
-    default:
-
-      cout << "Opcion invalida" << endl;
-    }
-
-  } while (opcion != 4);
-}
-
-void limpiarPantalla() {
-  clear();
-  refresh();
-}
-
-void pintarTablero(Juego partida) {
-  Tablero tablero = partida.getTablero();
-
-  int screenWidth = getmaxx(stdscr);
-  int tableroWidth = 8 * 2 + 1;
-  int posInicialX = (screenWidth - tableroWidth) / 2;
-  int espaciadoSuperior = 3;
-
-  attron(COLOR_PAIR(2));
-  for (int fila = 0; fila < 8; fila++) {
-    mvprintw(fila + espaciadoSuperior, posInicialX,
-             "  "); // Agregamos espaciadoSuperior
-
-    for (int columna = 0; columna < 8; columna++) {
-
-      if (tablero.tablero[fila][columna].getReveladoEstado() && 
-        !tablero.tablero[fila][columna].getMinaEstado()) {
-        if (fila == cursor.fila && columna == cursor.columna) {
-          attron(COLOR_PAIR(1));
-          printw("%d  ", tablero.tablero[fila][columna].getNumMinasAdyacentes());
-          attron(COLOR_PAIR(2));
-        } else {
-        attron(COLOR_PAIR(5));
-        printw("%d  ", tablero.tablero[fila][columna].getNumMinasAdyacentes());
-        attron(COLOR_PAIR(2));
-
-        } 
-
-      } else if (tablero.tablero[fila][columna].getMarcadaEstado()) {
-
-        if (fila == cursor.fila && columna == cursor.columna) {
-          attron(COLOR_PAIR(1));
-          printw("?  ");
-          attron(COLOR_PAIR(2));
-        } else {
-        attron(COLOR_PAIR(4));
-          printw("?  ");
-        attron(COLOR_PAIR(2));
-
-        } 
-
-      } else if (tablero.tablero[fila][columna].getMinaEstado() && 
-        tablero.tablero[fila][columna].getReveladoEstado()){
-        if (fila == cursor.fila && columna == cursor.columna) {
-          attron(COLOR_PAIR(1));
-          printw("!  ");
-          attron(COLOR_PAIR(2));
-        } else {
-        attron(COLOR_PAIR(6));
-          printw("!  ");
-        attron(COLOR_PAIR(2));
-
-        } 
-
-      } else {
-        if (fila == cursor.fila && columna == cursor.columna) {
-          attron(COLOR_PAIR(1));
-          printw("*  ");
-          attron(COLOR_PAIR(2));
-        } else {
-          printw("*  ");
-        }
+        // no hay partidas
       }
     }
-    printw("\n");
+
+  } else if (opcion == 3) { // Historial
+    move(20, 1);
+    ui.imprimirHistorial();
+    getchar();
+  } else { // Salir
+    return 1;
   }
 
-  attroff(COLOR_PAIR(2));
-
-  refresh();
+  return 0;
 }
 
 void GameLoop(Juego partida) {
-  noecho(); // Disable key echoing
-  cbreak(); // Take inputs character by character
+  Coord cursor;
+  cursor.fila = 3;
+  cursor.columna = 3;
   bool perdiste = false;
 
   while (perdiste == false) {
-    limpiarPantalla();
-    pintarTablero(partida);
-    attron(COLOR_PAIR(3));
-    mvprintw(15, 10, "Movimiento:");
-    mvprintw(16, 10, "w - Arriba");
-    mvprintw(17, 10, "s - Abajo");
-    mvprintw(18, 10, "a - Izquierda");
-    mvprintw(19, 10, "d - Derecha");
-
-    mvprintw(15, 30, "Acciones:");
-    mvprintw(16, 30, "r - Revelar");
-    mvprintw(17, 30, "f - Marcar");
-    mvprintw(18, 30, "k - Salir");
-    attroff(COLOR_PAIR(3));
-    refresh();
-
-
+    ui.limpiarPantalla();
+    ui.pintarTablero(partida, cursor);
+    ui.imprimirControlesJuego();
     int key = getch();
 
-    if (key == 'w')
+    // Movimiento
+    if (key == 'w') {
       cursor.fila--; // Move up
-    else if (key == 's')
+      if (cursor.fila < 0) cursor.fila = 7;
+    } else if (key == 's') {
       cursor.fila++; // Move down
-    else if (key == 'a')
+      if (cursor.fila > 7) cursor.fila = 0;
+    } else if (key == 'a') {
       cursor.columna--; // Move left
-    else if (key == 'd')
+      if (cursor.columna < 0) cursor.columna = 7;
+    } else if (key == 'd') {
       cursor.columna++; // Move right
+      if (cursor.columna > 7) cursor.columna = 0;
+    }
 
-    // Reajuste del cursor
-    if (cursor.fila > 7)
-      cursor.fila = 0;
-    if (cursor.fila < 0)
-      cursor.fila = 7;
-    if (cursor.columna > 7)
-      cursor.columna = 0;
-    if (cursor.columna < 0)
-      cursor.columna = 7;
-
-    // Acciones 
+    // Acciones
     if (key == 'f') {
       partida.marcarCelda(cursor.fila, cursor.columna);
 
-    }else if (key == 'r') {
-      int mina = partida.revelarCelda(cursor.fila, cursor.columna);
-      if (mina == 1) {
-        pintarTablero(partida);
-        refresh();
+    } else if (key == 'r') {
+      if (partida.revelarCelda(cursor.fila, cursor.columna) == 1) {
+        ui.pintarTablero(partida, cursor);
+        ui.imprimirEn(21, ui.getScreenWidth() / 2 - 15, "Haz Encontrado Una Mina Perdiste", RED );
         getchar();
-        limpiarPantalla();
         perdiste = true;
       }
 
     } else if (key == 'k') {
-      partida.acabarPartida();
-      break;
+      ui.imprimirEn(21, 10, "¿Seguro Que Quieres Salir? [y]-Sí / [Cualquier Tecla]-No", MAGENTA);
+      int seleccion = getch();
+
+      if (seleccion == 'y') {
+        ui.imprimirEn(21, 10, "¿ Guardar La Partida? [y]-Sí / [Cualquier Tecla]-No", MAGENTA);
+        seleccion = getch();
+        if (seleccion == 'y') partida.guardarPartida();
+        else partida.acabarPartida();
+        break;
+      }
     }
   }
 }
