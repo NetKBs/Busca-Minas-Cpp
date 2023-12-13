@@ -5,25 +5,30 @@
 #include <time.h>
 #include <utility>
 
+#include <fstream> // BORRAR
+
+
 using namespace std;
 
 struct Point {
   int fila, columna;
 };
 
-// CHULETA PARA VER DETALLES BORRAR
-void Tablero::mostrarTableroDetalles() {
+void Tablero::mostrarEsquemaInterno() {
+  std::ofstream archivo("detalles_tablero.txt"); // Abrir el archivo de texto
+
   for (int fila = 0; fila < FILAS; fila++) {
     for (int columna = 0; columna < COLUMNAS; columna++) {
       if (!tablero[fila][columna].getMinaEstado()) {
-        cout << tablero[fila][columna].getNumMinasAdyacentes() << " ";
+        archivo << tablero[fila][columna].getNumMinasAdyacentes() << " ";
       } else {
-        cout << "!"
-             << " ";
+        archivo << "!" << " ";
       }
     }
-    cout << endl;
+    archivo << endl;
   }
+
+  archivo.close(); // Cerrar el archivo
 }
 
 Celda Tablero::obtenerCelda(int fila, int columna) {
@@ -134,29 +139,5 @@ void Tablero::asignarAdyacenciaCeldas(pair<int, int> coords[]) {
         }
       }
     }
-  }
-}
-
-
-
-void Tablero::dibujarTablero() {
-
-  for (int fila = 0; fila < FILAS; fila++) {
-    cout << fila << " | ";
-    for (int columna = 0; columna < COLUMNAS; columna++) {
-
-      if (tablero[fila][columna].getReveladoEstado()) {
-        cout << tablero[fila][columna].getNumMinasAdyacentes() << " ";
-
-      } else if (tablero[fila][columna].getMarcadaEstado()) {
-        cout << "?"
-             << " ";
-
-      } else {
-        cout << "*"
-             << " ";
-      }
-    }
-    cout << endl;
   }
 }

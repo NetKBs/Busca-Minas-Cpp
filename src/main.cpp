@@ -1,6 +1,7 @@
 #include "capa-negocio/UI.hpp"
 #include <cstdio>
 #include <ncurses.h>
+#include <string>
 
 using namespace std;
 
@@ -63,14 +64,15 @@ int seleccionDeMenu(int opcion) {
 
     if (opcion == 1) {
       partida.nuevaPartida();
+      partida.hacerChuleta();
       GameLoop(partida);
 
     } else {
-
       if (partida.cargarPartida() != 1) {
         GameLoop(partida);
       } else {
-        // no hay partidas
+        ui.imprimirEn(18, ui.getScreenWidth() / 2 - 15, "No Hay Partida Guardada", RED );
+        getch();
       }
     }
 
@@ -85,13 +87,22 @@ int seleccionDeMenu(int opcion) {
   return 0;
 }
 
+bool manejarVictoria(Juego partida) {
+  std::string verificacion = partida.chequearVictoria();
+  if(verificacion != "") {
+    ui.imprimirEn(21, ui.getScreenWidth() / 2 - 15, verificacion.c_str() , GREEN );
+    return true;
+  }
+  return false;
+}
+
 void GameLoop(Juego partida) {
   Coord cursor;
   cursor.fila = 3;
   cursor.columna = 3;
-  bool perdiste = false;
+  bool partidaEstado = false;
 
-  while (perdiste == false) {
+  while (partidaEstado == false) {
     ui.limpiarPantalla();
     ui.pintarTablero(partida, cursor);
     ui.imprimirControlesJuego();
@@ -115,13 +126,24 @@ void GameLoop(Juego partida) {
     // Acciones
     if (key == 'f') {
       partida.marcarCelda(cursor.fila, cursor.columna);
+      if(manejarVictoria(partida)) {
+        getch();
+        partidaEstado = true;
+      }
 
     } else if (key == 'r') {
       if (partida.revelarCelda(cursor.fila, cursor.columna) == 1) {
         ui.pintarTablero(partida, cursor);
-        ui.imprimirEn(21, ui.getScreenWidth() / 2 - 15, "Haz Encontrado Una Mina Perdiste", RED );
+        ui.imprimirEn(21, ui.getScreenWidth() / 2 - 15, "Has Encontrado Una Mina Perdiste", RED );
         getchar();
-        perdiste = true;
+        partidaEstado = true;
+
+      } else {
+        if(manejarVictoria(partida)) {
+          partida.acabarPartida();
+          getch();
+          partidaEstado = true;
+        }
       }
 
     } else if (key == 'k') {

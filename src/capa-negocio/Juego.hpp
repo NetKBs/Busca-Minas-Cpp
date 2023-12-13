@@ -34,11 +34,9 @@ public:
   void nuevaPartida();
   int cargarPartida();
   void guardarPartida();
-  std::string verificarCoordenadas(int fila, int columna);
   int revelarCelda(int fila, int columna);
   void marcarCelda(int fila, int columna);
-  void dibujarTablero();
-  void chequearVictoria();
+  std::string chequearVictoria();
   void acabarPartida();
   void setNombre(std::string nombre);
   void setFecha(std::string fecha);
@@ -46,6 +44,10 @@ public:
   void setResultado(Resultado resultado);
   Tablero getTablero();
   std::string getNombre();
+
+  void mostrarTableroDetalles();
+  
+private:
 };
 
 #endif

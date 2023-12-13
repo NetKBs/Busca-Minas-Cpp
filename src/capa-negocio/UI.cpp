@@ -43,7 +43,7 @@ void UI::imprimirControlesJuego() {
   imprimirEn(15, 10, "Movimiento:", CYAN);
    imprimirEn(16, 10, "w - Arriba", CYAN);
    imprimirEn(17, 10, "s - Abajo", CYAN);
-   imprimirEn(18, 10, "a - uierda", CYAN);
+   imprimirEn(18, 10, "a - Izquierda", CYAN);
    imprimirEn(19, 10, "d - Derecha", CYAN);
 
    imprimirEn(15, 30, "Acciones:", CYAN);

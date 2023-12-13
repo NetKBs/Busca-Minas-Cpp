@@ -29,17 +29,16 @@ public:
 
    bool celdaValidaParaChecar(int fila, int columna);
 
-   /// CHULETA PARA VER DETALLES BORRAR
-   void mostrarTableroDetalles();
-
-
    /// Asigna minas en celdas aleatoriamente
    /// asigna adayacencia a las celdas vecinas
    void generarTablero();
 
-   void dibujarTablero();
 
+  /// Esquema interno del tablero
+  void mostrarEsquemaInterno();
+  
   private:
+
    /// Recibe coordenadas de las minas 
    /// Asigna adyacencia a las celdas al rededor
    void asignarAdyacenciaCeldas(std::pair<int, int> coords[]);

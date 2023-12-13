@@ -7,6 +7,7 @@ Juego::Juego(std::string usuario) {
   fecha_hora = obtenerFechaHora();
 }
 
+
 void Juego::nuevaPartida() { tablero.generarTablero(); }
 
 int Juego::cargarPartida() {
@@ -16,17 +17,6 @@ int Juego::cargarPartida() {
     return 0;
   }
   return 1;
-}
-
-std::string Juego::verificarCoordenadas(int fila, int columna) {
-
-  if ((fila < 0 || columna < 0) && (fila > 7 || columna > 7)) {
-    return "Coordenadas Invalidas";
-  } else if (tablero.obtenerCelda(fila, columna).getReveladoEstado()) {
-    return "Celda Ya Revelada";
-  }
-
-  return "";
 }
 
 int Juego::revelarCelda(int fila, int columna) {
@@ -39,11 +29,6 @@ int Juego::revelarCelda(int fila, int columna) {
 
 void Juego::marcarCelda(int fila, int columna) {
   tablero.marcarCelda(fila, columna);
-}
-
-void Juego::dibujarTablero() {
-  tablero.mostrarTableroDetalles();
-  tablero.dibujarTablero();
 }
 
 std::string Juego::obtenerFechaHora() {
@@ -67,7 +52,7 @@ std::string Juego::getResultadoEstado() {
     return "INCONCLUSO";
 }
 
-void Juego::chequearVictoria() {
+std::string Juego::chequearVictoria() {
   int minasMarcadas = 0;
   int celdasReveladas = 0;
 
@@ -87,9 +72,13 @@ void Juego::chequearVictoria() {
   }
 
   if (minasMarcadas == 12) {
-    cout << "Felicidades, has ganado marcando todas las minas!" << endl;
+    resultado = VICTORIA; 
+    return "¡Felicidades, has ganado!. Marcaste todas las minas";
   } else if (celdasReveladas == (8 * 8 - 12)) {
-    cout << "Felicidades, has ganado revelando todas las celdas sin minas!" << endl;
+    resultado = VICTORIA; 
+    return "¡Felicidades, has ganado!. Revelaste todas las celdas";
+  } else {
+    return "";
   }
 }
 
@@ -111,3 +100,7 @@ void Juego::setResultado(Resultado resultado) { this->resultado = resultado; }
 
 Tablero Juego::getTablero() {return tablero;}
 std::string Juego::getNombre() {return usuario;}
+
+void Juego::mostrarTableroDetalles() {
+ tablero.mostrarEsquemaInterno(); 
+}
