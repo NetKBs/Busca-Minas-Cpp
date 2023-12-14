@@ -1,4 +1,8 @@
 #include "UI.hpp"
+#include <cstdio>
+#include <iostream>
+#include <ncurses.h>
+#include <string>
 
 using namespace std;
 
@@ -16,6 +20,30 @@ UI::UI() {
   init_pair(WHITE, COLOR_WHITE, COLOR_BLACK);
   init_pair(MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
   init_pair(BLUE, COLOR_BLUE, COLOR_BLACK);
+}
+
+string UI::pedirNombre() {
+  echo();
+  nocbreak();
+  curs_set(1);
+
+  limpiarPantalla();
+
+  string nombre;
+
+  imprimirEn(16, getScreenWidth()/2-10, "NOMBRE JUGADOR:", YELLOW);
+  imprimirEn(17, getScreenWidth()/2-10, ">>> ", CYAN);
+
+  // Capturar la entrada del usuario utilizando ncurses
+  char buffer[256];
+  getnstr(buffer, sizeof(buffer));
+  nombre = buffer;
+
+  noecho();
+  cbreak();
+  curs_set(0);
+
+  return nombre;
 }
 
 void UI::imprimirEn(int row, int col, const char* txt, Color color) {
@@ -38,6 +66,7 @@ void UI::limpiarPantalla() {
   clear();
   refresh();
 }
+
 
 void UI::imprimirControlesJuego() {
   imprimirEn(15, 10, "Movimiento:", CYAN);
@@ -105,37 +134,43 @@ void UI::imprimirHistorial() {
     limpiarPantalla();
     std::vector<Datos> log = cargarLog("log.dat");
 
-    int fila = 0;
-    int columna = getScreenWidth() / 2 - 20;
-
     int maxFila, maxColumna;
     getmaxyx(stdscr, maxFila, maxColumna); // Obtener el tamaño máximo de la ventana
-
     // Habilitar el scroll vertical
     scrollok(stdscr, TRUE);
+    int fila = 1; // Comenzar en la fila 1 para dejar espacio para el encabezado
+    int columna = 2;
 
+    // Imprimir encabezado
+    mvwprintw(stdscr, 0, columna, "Historial de Partidas");
+    mvwhline(stdscr, 1, columna, ACS_HLINE, maxColumna - 4);
+
+    // Imprimir cada partida en el historial
     for (const Datos& datos : log) {
-        mvprintw(fila, columna, "Nombre: %s", datos.nombre.c_str());
-        mvprintw(fila + 1, columna, "Fecha: %s", datos.fecha.c_str());
-        mvprintw(fila + 2, columna, "Hora: %s", datos.hora.c_str());
-        mvprintw(fila + 3, columna, "Tamaño: %d", datos.t_size.c_str());
-        mvprintw(fila + 4, columna, "Minas: %d", datos.n_minas.c_str());
-        mvprintw(fila + 5, columna, "Jugadas: %d", datos.n_jugadas.c_str());
-        mvprintw(fila + 6, columna, "Resultado: %s", datos.resultado.c_str());
+        mvwprintw(stdscr, fila + 1, columna, "Nombre: %s", datos.nombre.c_str());
+        mvwprintw(stdscr, fila + 2, columna, "Fecha: %s", datos.fecha.c_str());
+        mvwprintw(stdscr, fila + 3, columna, "Hora: %s", datos.hora.c_str());
+        mvwprintw(stdscr, fila + 4, columna, "Tamaño: %s", datos.t_size.c_str());
+        mvwprintw(stdscr, fila + 5, columna, "Minas: %s", datos.n_minas.c_str());
+        mvwprintw(stdscr, fila + 6, columna, "Jugadas: %s", datos.n_jugadas.c_str());
+        mvwprintw(stdscr, fila + 7, columna, "Resultado: %s", datos.resultado.c_str());
 
         fila += 8; // Ajustar la posición de impresión para el siguiente conjunto de datos
 
         // Verificar si se ha alcanzado el final de la ventana
         if (fila >= maxFila - 8) {
-            mvprintw(maxFila-1, 0, "Presione una tecla para continuar...");
-            refresh();
-            getch();
-
-            // Limpiar la pantalla y restablecer la posición de impresión
-            limpiarPantalla();
-            fila = 0;
+            mvwprintw(stdscr, maxFila - 1, columna, "Presione una tecla para continuar...");
+            wrefresh(stdscr);
+            wgetch(stdscr);
+            // Limpiar la ventana y restablecer la posición de impresión
+            wclear(stdscr);
+            fila = 1;
         }
     }
+    // Esperar a que el usuario presione una tecla antes de salir
+    mvwprintw(stdscr, maxFila - 1, columna, "Presione una tecla para salir...");
+    wrefresh(stdscr);
+    wgetch(stdscr);
 }
 
 

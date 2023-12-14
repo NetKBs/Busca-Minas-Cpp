@@ -35,6 +35,7 @@ public:
 	void imprimir(Color color, const char* txt);
 	void limpiarPantalla();
 	void terminarUI();
+	string pedirNombre();
 	int getScreenWidth();
 	void imprimirControlesJuego(); 
  	void pintarTablero(Juego partida, Coord cursor);

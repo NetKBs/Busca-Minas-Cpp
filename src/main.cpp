@@ -63,8 +63,10 @@ int seleccionDeMenu(int opcion) {
     Juego partida = Juego("Nombre");
 
     if (opcion == 1) {
+      string nombre = ui.pedirNombre();
       partida.nuevaPartida();
-      partida.hacerChuleta();
+      partida.setNombre(nombre);
+      partida.mostrarTableroDetalles();
       GameLoop(partida);
 
     } else {
@@ -77,7 +79,6 @@ int seleccionDeMenu(int opcion) {
     }
 
   } else if (opcion == 3) { // Historial
-    move(20, 1);
     ui.imprimirHistorial();
     getchar();
   } else { // Salir
@@ -88,9 +89,17 @@ int seleccionDeMenu(int opcion) {
 }
 
 bool manejarVictoria(Juego partida) {
-  std::string verificacion = partida.chequearVictoria();
+  string verificacion = partida.chequearVictoria();
   if(verificacion != "") {
     ui.imprimirEn(21, ui.getScreenWidth() / 2 - 15, verificacion.c_str() , GREEN );
+    return true;
+  }
+  return false;
+}
+
+bool manejarDerrota(Juego partida, int resulDeRevelar) {
+  if (resulDeRevelar == 1) {
+    ui.imprimirEn(21, ui.getScreenWidth() / 2 - 15, "Has Encontrado Una Mina Perdiste", RED );
     return true;
   }
   return false;
@@ -127,20 +136,21 @@ void GameLoop(Juego partida) {
     if (key == 'f') {
       partida.marcarCelda(cursor.fila, cursor.columna);
       if(manejarVictoria(partida)) {
+        ui.pintarTablero(partida, cursor);
         getch();
         partidaEstado = true;
       }
 
     } else if (key == 'r') {
-      if (partida.revelarCelda(cursor.fila, cursor.columna) == 1) {
+
+      if (manejarDerrota(partida, partida.revelarCelda(cursor.fila, cursor.columna))) {
         ui.pintarTablero(partida, cursor);
-        ui.imprimirEn(21, ui.getScreenWidth() / 2 - 15, "Has Encontrado Una Mina Perdiste", RED );
-        getchar();
+        getch();
         partidaEstado = true;
 
       } else {
         if(manejarVictoria(partida)) {
-          partida.acabarPartida();
+          ui.pintarTablero(partida, cursor);
           getch();
           partidaEstado = true;
         }
@@ -151,10 +161,14 @@ void GameLoop(Juego partida) {
       int seleccion = getch();
 
       if (seleccion == 'y') {
-        ui.imprimirEn(21, 10, "¿ Guardar La Partida? [y]-Sí / [Cualquier Tecla]-No", MAGENTA);
+        ui.imprimirEn(21, 10, "¿Guardar La Partida? [y]-Sí / [Cualquier Tecla]-No", MAGENTA);
         seleccion = getch();
-        if (seleccion == 'y') partida.guardarPartida();
-        else partida.acabarPartida();
+        
+        if (seleccion == 'y') {
+          partida.guardarPartida();
+        } else {
+          partida.acabarPartida();
+        }
         break;
       }
     }

@@ -46,8 +46,7 @@ public:
   std::string getNombre();
 
   void mostrarTableroDetalles();
-  
-private:
+
 };
 
 #endif

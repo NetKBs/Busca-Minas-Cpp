@@ -56,6 +56,7 @@ int Tablero::revelarCelda(int fila, int columna) {
     return 0;
   }
 
+  tablero[fila][columna].setReveladoEstado(true);
   list<pair<int, int>> celdasParaChecar;
   celdasParaChecar.push_back({fila, columna});
 
@@ -69,8 +70,7 @@ int Tablero::revelarCelda(int fila, int columna) {
     for (int i = -1; i <= 1; i++) {
       for (int j = -1; j <= 1; j++) {
 
-        if (i == 0 && j == 0)
-          continue; // celda central
+        if (i == 0 && j == 0) continue; // celda central
         int filaVecina = fila + i;
         int columnaVecina = columna + j;
 

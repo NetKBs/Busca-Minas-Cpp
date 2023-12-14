@@ -115,12 +115,12 @@ inline void loadStateJuego(string filename, Juego &partida) {
   partida.setFecha(fecha+ " " + hora);
   partida.setNumJugadas(num_jugadas);
 
-  if (resultado == "INCONCLUSO") {
-    partida.setResultado(INCONCLUSO);
+  if (resultado == "DERROTA") {
+    partida.setResultado(DERROTA); 
   } else if (resultado == "VICTORIA") {
-    partida.setResultado(VICTORIA);
+    partida.setResultado(VICTORIA); 
   } else {
-    partida.setResultado(DERROTA);
+    partida.setResultado(INCONCLUSO); 
   }
 
   fin.close();
