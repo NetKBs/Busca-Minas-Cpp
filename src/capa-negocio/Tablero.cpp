@@ -4,18 +4,15 @@
 #include <list>
 #include <time.h>
 #include <utility>
+#include <fstream> 
 
-#include <fstream> // BORRAR
 
 
 using namespace std;
 
-struct Point {
-  int fila, columna;
-};
-
+/// Para pruebas
 void Tablero::mostrarEsquemaInterno() {
-  std::ofstream archivo("detalles_tablero.txt"); // Abrir el archivo de texto
+  std::ofstream archivo("detalles_tablero.txt"); 
 
   for (int fila = 0; fila < FILAS; fila++) {
     for (int columna = 0; columna < COLUMNAS; columna++) {
@@ -27,7 +24,6 @@ void Tablero::mostrarEsquemaInterno() {
     }
     archivo << endl;
   }
-
   archivo.close(); // Cerrar el archivo
 }
 
@@ -48,7 +44,7 @@ int Tablero::revelarCelda(int fila, int columna) {
 
   if (tablero[fila][columna].getMinaEstado()) {
     tablero[fila][columna].setReveladoEstado(true);
-    return 1;
+    return 1; // mina
   }
 
   if (tablero[fila][columna].getNumMinasAdyacentes() > 0) {
@@ -91,8 +87,7 @@ int Tablero::revelarCelda(int fila, int columna) {
 }
 
 bool Tablero::celdaValidaParaChecar(int fila, int columna) {
-  if (fila >= 0 && fila <= 7 && columna >= 0 && columna <= 7)
-    return true;
+  if (fila >= 0 && fila <= 7 && columna >= 0 && columna <= 7) return true;
   return false;
 }
 
@@ -116,7 +111,6 @@ void Tablero::generarTablero() {
   }
 
   asignarAdyacenciaCeldas(minas_coords);
-  
 }
 
 void Tablero::asignarAdyacenciaCeldas(pair<int, int> coords[]) {

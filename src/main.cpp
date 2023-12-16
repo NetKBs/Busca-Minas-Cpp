@@ -80,7 +80,6 @@ int seleccionDeMenu(int opcion) {
 
   } else if (opcion == 3) { // Historial
     ui.imprimirHistorial();
-    getchar();
   } else { // Salir
     return 1;
   }

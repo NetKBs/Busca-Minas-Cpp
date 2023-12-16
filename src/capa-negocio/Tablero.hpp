@@ -23,22 +23,17 @@ public:
 
    /// Intercambia el valor del marcado en la celda
    void marcarCelda(int fila, int columna);
-
    /// Revela la celda. Return 0 : OK / Return 1 : Mina Encontrada
    int revelarCelda(int fila, int columna);
-
+   /// Revisa que no esté offlimits
    bool celdaValidaParaChecar(int fila, int columna);
-
    /// Asigna minas en celdas aleatoriamente
    /// asigna adayacencia a las celdas vecinas
    void generarTablero();
-
-
   /// Esquema interno del tablero
   void mostrarEsquemaInterno();
   
   private:
-
    /// Recibe coordenadas de las minas 
    /// Asigna adyacencia a las celdas al rededor
    void asignarAdyacenciaCeldas(std::pair<int, int> coords[]);
